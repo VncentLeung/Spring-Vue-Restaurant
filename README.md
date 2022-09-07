@@ -1,19 +1,4 @@
-# springboot-vue-demo
+前端，使用@vue/cli 4.5.15做脚手架的构建的vue 2项目
+后端Spring Boot + Spring MVC + MyBatis搭建框架
 
-## Project setup
-```
-npm install
-```
-
-### Compiles and hot-reloads for development
-```
-npm run serve
-```
-
-### Compiles and minifies for production
-```
-npm run build
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+2022年6月
