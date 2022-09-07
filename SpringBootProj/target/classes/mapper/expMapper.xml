@@ -1,0 +1,282 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.DatabaseSystem002.dao.ExpMapper">
+    <!--  基础表-->
+    <!--    <sql id="C_List">-->
+    <!--        cid,cname,csex,csid,ctel-->
+    <!--    </sql>-->
+    <!--    <sql id="R_List">-->
+    <!--        rid,rtype,rprice,rstatus-->
+    <!--    </sql>-->
+    <!--    <sql id="D_List">-->
+    <!--        did,dtype,dkind,dname,dcount,dprice,dstatus-->
+    <!--    </sql>-->
+    <!--    <sql id="CR_List">-->
+    <!--        cid,rid,stime,ordertime,etime,deposit,consume-->
+    <!--    </sql>-->
+    <!--    <sql id="Rcsu_List">-->
+    <!--        uid,rid,rtype,ordertime,uconsume,utime-->
+    <!--    </sql>-->
+    <!--    <sql id="Dcsu_List">-->
+    <!--        uid,did,rid,dcounts,delieverytime,uconsume,utime,delieverystatus-->
+    <!--    </sql>-->
+    <!--    <sql id="Acsu_List">-->
+    <!--        rid,uid,utype,uname,ucounts,uconsume,utime-->
+    <!--    </sql>-->
+    <!--    <sql id="Astaff_List">-->
+    <!--        ssid,sname,sid,stype-->
+    <!--    </sql>-->
+
+    <sql id="R_List">
+        kid, ktype , knum, kstatus
+    </sql>
+
+    <sql id="St_List">
+        ssid,sname,sid,stype
+    </sql>
+    <sql id="Rcsu_List">
+        oid,cid,kid,ctime,consume
+    </sql>
+
+    <sql id="Dcsu_List">
+        oid,cid,kid,uid,ctime,consume,did,dname,dnums,oconsume,delieverystatus
+    </sql>
+    <sql id="D_List">
+        did,dtype,dkind,dname,dcount,dprice,dstatus,dimg,ddesc
+    </sql>
+    <sql id="Us_List">
+        username,password,usertype
+    </sql>
+    <sql id="C_List">
+        cid,ctel
+    </sql>
+    <sql id="CR_List">
+        cid,kid,crtime
+    </sql>
+
+    <sql id="Acsu_List">
+        uid,oid,did,dnums,oconsume
+    </sql>
+
+
+    <!--    查-->
+    <select id="login" parameterType="com.DatabaseSystem002.entity.Usr"  resultType="java.lang.String">
+        select usertype
+        from usr
+        where username=#{username,jdbcType=VARCHAR} and password=#{password,jdbcType=VARCHAR}
+    </select>
+
+    <select id="SAS" resultType="com.DatabaseSystem002.entity.Staff">
+        select <include refid="St_List" /> from staff
+    </select>
+    <select id="SAR" resultType="com.DatabaseSystem002.entity.Desk">
+        select <include refid="R_List"/> from desk
+    </select>
+    <select id="SARcsu" resultType="com.DatabaseSystem002.entity.Consume">
+        select <include refid="Rcsu_List"/> from consume
+    </select>
+    <select id="SADcsu" resultType="com.DatabaseSystem002.entity.Littleorder">
+        select <include refid="Dcsu_List"/> from littleorder
+    </select>
+<!--    此处留意-->
+    <select id="SAcsu" resultType="com.DatabaseSystem002.entity.Littleorder">
+        select <include refid="Acsu_List"/> from uorder
+    </select>
+    <select id="SAD" resultType="com.DatabaseSystem002.entity.Dish">
+        select <include refid="D_List"/> from dish
+    </select>
+    <select id="SAC" resultType="com.DatabaseSystem002.entity.Customer">
+        select <include refid="C_List"/> from customer
+    </select>
+    <select id="SACByCtel" parameterType="java.lang.String"  resultType="java.lang.String" >
+        select cid from customer  where ctel =#{ctel,jdbcType=VARCHAR}
+    </select>
+    <select id="SACR" resultType="com.DatabaseSystem002.entity.CToR">
+        select
+        <include refid="CR_List"/>
+        from c_to_r
+    </select>
+    
+    <select id="SADsell" resultType="com.DatabaseSystem002.entity.Dishordersell">
+        select sum(dnums) sum,dname
+        from dishorder
+        group by dname
+        order by sum(dnums) desc;
+    </select>
+    <select id="SADtop5" resultType="com.DatabaseSystem002.entity.Dishordersell">
+        select sum(dnums) sum,dname
+        from dishorder
+        group by dname
+        order by sum(dnums) desc
+            limit 5;
+    </select>
+
+    <select id="SAMoney" resultType="com.DatabaseSystem002.entity.Money">
+        select sum,dname
+        from money;
+    </select>
+    <!--    查-->
+
+    <!--    增-->
+    <insert id="insC" parameterType="com.DatabaseSystem002.entity.Customer" >
+        insert into customer (ctel) values(#{ctel,mode=IN,jdbcType=VARCHAR})
+    </insert>
+    <insert id="insR" parameterType="com.DatabaseSystem002.entity.Desk">
+        insert into desk (kid,ktype,knum)
+        values (
+                   #{kid,mode=IN,jdbcType=INTEGER},
+                   #{ktype,mode=IN,jdbcType=VARCHAR},
+                   #{knum,mode=IN,jdbcType=INTEGER})
+    </insert>
+    <insert id="insD" parameterType="com.DatabaseSystem002.entity.Dish">
+        insert into dish(did,dtype,dkind,dname,dcount,dprice,dstatus,dimg,ddesc)
+        values (
+                   #{did,mode=IN,jdbcType=VARCHAR},
+                   #{dtype,mode=IN,jdbcType=VARCHAR},
+                   #{dkind,mode=IN,jdbcType=VARCHAR},
+                   #{dname,mode=IN,jdbcType=VARCHAR},
+                   #{dcount,mode=IN,jdbcType=VARCHAR},
+                   #{dprice,mode=IN,jdbcType=INTEGER},
+                   #{dstatus,mode=IN,jdbcType=VARCHAR},
+                   #{dimg,mode=IN,jdbcType=VARCHAR},
+                   #{ddesc,mode=IN,jdbcType=VARCHAR}
+               )
+    </insert>
+    <insert id="insCR" parameterType="com.DatabaseSystem002.entity.CToR">
+        insert into c_to_r(cid,kid)
+        values(
+                  #{cid,mode=IN,jdbcType=VARCHAR},
+                  #{kid,mode=IN,jdbcType=VARCHAR}
+              )
+    </insert>
+    <insert id="insS" parameterType="com.DatabaseSystem002.entity.Staff">
+        insert into staff
+        values(#{ssid,jdbcType=VARCHAR},
+               #{sname,jdbcType=VARCHAR},
+               #{sid,jdbcType=VARCHAR},
+               #{stype,jdbcType=VARCHAR})
+    </insert>
+    <insert id="insRD" parameterType="com.DatabaseSystem002.entity.Uorder">
+        insert into uorder (oid,did,dnums)
+        values(
+                  #{oid,jdbcType=INTEGER},
+                  #{did,jdbcType=VARCHAR},
+                  #{dnums,jdbcType=INTEGER}
+              )
+    </insert>
+
+    <!--    -->
+    <!--    <insert id="insR" parameterType="com.DatabaseSystem002.entity.Room" statementType="CALLABLE">-->
+    <!--        {call insR(#{rid,mode=IN},#{rtype,mode=IN},#{rprice,mode=IN})}-->
+    <!--    </insert>-->
+    <!--    <insert id="insD" parameterType="com.DatabaseSystem002.entity.Dish" statementType="CALLABLE">-->
+    <!--        {-->
+    <!--        call insD(#{did,mode=IN,jdbcType=VARCHAR},-->
+    <!--                   #{dtype,mode=IN,jdbcType=VARCHAR},-->
+    <!--                   #{dkind,mode=IN,jdbcType=VARCHAR},-->
+    <!--                   #{dname,mode=IN,jdbcType=VARCHAR},-->
+    <!--                   #{dcount,mode=IN,jdbcType=VARCHAR},-->
+    <!--                   #{dprice,mode=IN,jdbcType=INTEGER}-->
+    <!--        )}-->
+    <!--    </insert>-->
+    <!--    <insert id="insCR" parameterType="com.DatabaseSystem002.entity.CToR" statementType="CALLABLE">-->
+    <!--        {-->
+    <!--            call insCR(-->
+    <!--                #{cid,mode=IN,jdbcType=VARCHAR},-->
+    <!--                #{rid,mode=IN,jdbcType=VARCHAR},-->
+    <!--                #{stime,mode=IN,jdbcType=TIMESTAMP},-->
+    <!--                #{ordertime,mode=IN,jdbcType=INTEGER}-->
+    <!--            )-->
+    <!--        }-->
+    <!--    </insert>-->
+    <!--    <insert id="insRD" parameterType="com.DatabaseSystem002.entity.DishConsume" statementType="CALLABLE">-->
+    <!--        {-->
+    <!--            call customer_order_dish(-->
+    <!--                #{did,mode=IN,jdbcType=VARCHAR},-->
+    <!--                #{rid,mode=IN,jdbcType=VARCHAR},-->
+    <!--                #{dcounts,mode=IN,jdbcType=INTEGER},-->
+    <!--                #{delieverytime,mode=IN,jdbcType=TIMESTAMP}-->
+    <!--            )-->
+    <!--        }-->
+    <!--    </insert>-->
+    <!--    <insert id="insS" parameterType="com.DatabaseSystem002.entity.Staff">-->
+    <!--        insert into staff-->
+    <!--        values(#{ssid,jdbcType=VARCHAR},-->
+    <!--               #{sname,jdbcType=VARCHAR},-->
+    <!--               #{sid,jdbcType=VARCHAR},-->
+    <!--               #{stype,jdbcType=VARCHAR})-->
+    <!--    </insert>-->
+    <!--    删-->
+
+
+    <!-- 刪桌子-->
+    <delete id="delRoomByKey" parameterType="java.lang.Integer">
+        delete from desk
+        where kid= #{kid,jdbcType=INTEGER}
+    </delete>
+    <!-- 刪大订单-->
+    <delete id="delConsumeByKey" parameterType="java.lang.Integer">
+        delete from consume
+        where oid= #{oid,jdbcType=INTEGER}
+    </delete>
+
+    <!-- 刪桌子使用信息-->
+    <delete id="delCToRByKey" parameterType="java.lang.String">
+        delete from c_to_r
+        where kid= #{kid,jdbcType=INTEGER}
+    </delete>
+    <!-- 刪菜品-->
+    <delete id="delDishByKey" parameterType="java.lang.String">
+        delete from dish
+        where did= #{did,jdbcType=VARCHAR}
+    </delete>
+    <!-- 刪员工-->
+    <delete id="delStaffByKey" parameterType="java.lang.String">
+        delete from staff
+        where sid= #{sid,jdbcType=VARCHAR}
+    </delete>
+
+    <!--    改-->
+    <!-- 改客户表-->
+    <update id="udC" parameterType="com.DatabaseSystem002.entity.Customer">
+        update customer
+        set ctel = #{ctel,jdbcType=VARCHAR}
+        where cid = #{cid,jdbcType=INTEGER}
+    </update>
+    <!-- 改餐桌表-->
+    <update id="udR" parameterType="com.DatabaseSystem002.entity.Desk">
+        update desk
+        set kid = #{kid,jdbcType=INTEGER},
+            ktype = #{ktype,jdbcType=VARCHAR},
+            knum = #{knum,jdbcType=INTEGER},
+            kstatus = #{kstatus,jdbcType=VARCHAR}
+        where kid = #{kid,jdbcType=VARCHAR}
+    </update>
+    <!-- 改菜品表-->
+    <update id="udD" parameterType="com.DatabaseSystem002.entity.Dish">
+        update dish
+        set did = #{did,jdbcType=VARCHAR},
+            dtype = #{dtype,jdbcType=VARCHAR},
+            dkind = #{dkind,jdbcType=INTEGER},
+            dname = #{dname,jdbcType=VARCHAR},
+            dcount = #{dcount,jdbcType=VARCHAR},
+            dprice = #{dprice,jdbcType=VARCHAR},
+            dstatus = #{dstatus,jdbcType=VARCHAR}
+        where did = #{did,jdbcType=VARCHAR}
+    </update>
+    <!-- 改小订单的配送状态-->
+    <update id="udRDstatus" parameterType="com.DatabaseSystem002.entity.Uorder">
+        update Uorder
+        set delieverystatus=#{delieverystatus,jdbcType=VARCHAR}
+        where uid=#{uid,jdbcType=VARCHAR}
+    </update>
+    <!-- 改员工信息表-->
+    <update id="udStaff" parameterType="com.DatabaseSystem002.entity.Staff">
+        update staff
+        set ssid=#{ssid,jdbcType=VARCHAR},
+            sname=#{sname,jdbcType=VARCHAR},
+            sid=#{sid,jdbcType=VARCHAR},
+            stype=#{stype,jdbcType=VARCHAR}
+        where sid=#{sid,jdbcType=VARCHAR}
+    </update>
+</mapper>
